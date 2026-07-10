@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Risk Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0C10;
+    --card:#12151B;
+    --card2:#161A21;
+    --border:#1E232B;
+    --text:#E8EAED;
+    --muted:#7C8797;
+    --gold:#F5A623;
+    --blue:#3E8EF7;
+    --green:#3ECF8E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Mono', monospace;
+    -webkit-font-smoothing:antialiased;
+    padding:20px 14px 100px;
+    line-height:1.6;
+    letter-spacing:.02em;
+  }
+  h1,h2,.disp{font-family:'Space Grotesk', sans-serif;}
+  .eyebrow{
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);font-family:'Space Grotesk',sans-serif;font-weight:600;
+    margin-bottom:6px;
+  }
+  header{margin-bottom:18px;}
+  header h1{font-size:20px;font-weight:700;margin:0 0 14px;color:var(--text);letter-spacing:.01em;}
+  .ticker{
+    background:linear-gradient(180deg,var(--card2),var(--card));
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px 18px;
+    display:flex;justify-content:space-between;align-items:flex-end;gap:10px;
+  }
+  .ticker .block{flex:1;min-width:0;}
+  .ticker .label{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;font-family:'Space Grotesk',sans-serif;}
+  .ticker .val{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;letter-spacing:.03em;}
+  .ticker .val.gold{color:var(--gold);}
+  .ticker .divider{width:1px;background:var(--border);align-self:stretch;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    margin-top:14px;
+  }
+  .card h2{font-size:13px;font-weight:600;color:var(--blue);margin:0 0 14px;letter-spacing:.05em;}
+  .row{display:flex;gap:12px;margin-bottom:12px;}
+  .field{flex:1;min-width:0;}
+  .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;font-family:'Space Grotesk',sans-serif;letter-spacing:.03em;}
+  input{
+    width:100%;background:var(--card2);border:1px solid var(--border);
+    color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:15px;
+    padding:10px 11px;border-radius:8px;outline:none;letter-spacing:.03em;
+  }
+  input:focus{border-color:var(--blue);}
+
+  .asset{
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:10px;
+    background:var(--card2);
+  }
+  .asset-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .asset-top input{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:var(--gold);background:transparent;border:none;padding:0;width:auto;flex:1;}
+  .del{
+    background:none;border:none;color:var(--muted);font-size:18px;line-height:1;
+    padding:2px 6px;cursor:pointer;
+  }
+  .del:active{color:#E05C5C;}
+
+  .addbtn,.calcbtn{
+    width:100%;border:none;border-radius:10px;padding:12px;
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;
+    cursor:pointer;
+  }
+  .addbtn{
+    background:transparent;border:1px dashed var(--border);color:var(--muted);margin-top:2px;
+  }
+  .addbtn:active{border-color:var(--blue);color:var(--blue);}
+  .calcbtn{
+    background:var(--gold);color:#1A1300;margin-top:16px;
+    font-size:15px;padding:14px;
+  }
+  .calcbtn:active{background:#D6910F;}
+
+  .result-card h2{color:var(--gold);}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;border-spacing:0 0;}
+  th{
+    text-align:right;color:var(--muted);font-weight:500;font-size:10.5px;
+    text-transform:uppercase;letter-spacing:.08em;padding:0 8px 10px 0;
+    font-family:'Space Grotesk',sans-serif;white-space:nowrap;
+  }
+  th:first-child,td:first-child{text-align:left;padding-left:0;}
+  td{padding:11px 8px 11px 0;border-top:1px solid var(--border);font-variant-numeric:tabular-nums;text-align:right;letter-spacing:.03em;}
+  td.lbl{color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.02em;}
+  td.tp{color:var(--green);font-weight:600;}
+  .scrollx{overflow-x:auto;}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0;}
+  footer{text-align:center;color:var(--muted);font-size:11px;margin-top:24px;line-height:1.7;letter-spacing:.02em;padding:0 6px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Risk & Fee Calculator</h1>
+  <div class="ticker">
+    <div class="block">
+      <div class="label">Vốn hiện tại</div>
+      <div class="val" id="tCapital">350</div>
+    </div>
+    <div class="divider"></div>
+    <div class="block">
+      <div class="label">Mục tiêu</div>
+      <div class="val" id="tTarget">6800</div>
+    </div>
+    <div class="divider"></div>
+    <div class="block">
+      <div class="label">Còn thiếu</div>
+      <div class="val gold" id="tRemain">6450</div>
+    </div>
+  </div>
+</header>
+
+<div class="card">
+  <h2>Tài khoản & mức risk</h2>
+  <div class="row">
+    <div class="field">
+      <label>Vốn hiện tại (USDT)</label>
+      <input type="number" id="capital" value="350" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label>Mục tiêu (USDT)</label>
+      <input type="number" id="target" value="6800" inputmode="decimal">
+    </div>
+  </div>
+  <div class="row">
+    <div class="field">
+      <label>Risk mỗi lệnh full (%)</label>
+      <input type="number" id="riskPct" value="5" inputmode="decimal">
+    </div>
+  </div>
+</div>
+
+<div class="card" id="assetsCard">
+  <h2>Tài sản (chia lệnh)</h2>
+  <div id="assetsList"></div>
+  <button class="addbtn" onclick="addAsset()">+ Thêm tài sản</button>
+</div>
+
+<button class="calcbtn" onclick="calculate()">Tính kết quả</button>
+
+<div id="results"></div>
+
+<footer>Nhập số liệu → bấm Tính kết quả. Công thức: KL trước phí = Risk USD ÷ hệ số; Phí = KL trước phí × hệ số phí; TP = KL trước phí + Phí.</footer>
+
+<script>
+let assets = [
+  {name:"BTC", divisor:250, fee:45},
+  {name:"ETH", divisor:20, fee:1.5},
+  {name:"XAU", divisor:10, fee:0.4},
+];
+
+function renderAssets(){
+  const list = document.getElementById('assetsList');
+  list.innerHTML = '';
+  assets.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'asset';
+    div.innerHTML = `
+      <div class="asset-top">
+        <input value="${a.name}" oninput="assets[${i}].name=this.value">
+        <button class="del" onclick="removeAsset(${i})">✕</button>
+      </div>
+      <div class="row" style="margin-bottom:0;">
+        <div class="field">
+          <label>Hệ số chia (giá/đòn bẩy)</label>
+          <input type="number" value="${a.divisor}" inputmode="decimal" oninput="assets[${i}].divisor=parseFloat(this.value)||0">
+        </div>
+        <div class="field">
+          <label>Hệ số phí</label>
+          <input type="number" value="${a.fee}" inputmode="decimal" oninput="assets[${i}].fee=parseFloat(this.value)||0">
+        </div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function addAsset(){
+  assets.push({name:"Mới", divisor:1, fee:0});
+  renderAssets();
+}
+function removeAsset(i){
+  assets.splice(i,1);
+  renderAssets();
+}
+
+function fmt(n){
+  if(!isFinite(n)) return '-';
+  return n.toLocaleString('en-US', {maximumFractionDigits:4});
+}
+
+function calculate(){
+  const capital = parseFloat(document.getElementById('capital').value)||0;
+  const target = parseFloat(document.getElementById('target').value)||0;
+  const riskPct = parseFloat(document.getElementById('riskPct').value)||0;
+
+  document.getElementById('tCapital').textContent = fmt(capital);
+  document.getElementById('tTarget').textContent = fmt(target);
+  document.getElementById('tRemain').textContent = fmt(target-capital);
+
+  const levels = [
+    {label:`Full lệnh (${riskPct}%)`, pct: riskPct},
+    {label:`2 lệnh (${(riskPct/2).toFixed(2)}% mỗi lệnh)`, pct: riskPct/2},
+    {label:`5 lệnh (${(riskPct/5).toFixed(2)}% mỗi lệnh)`, pct: riskPct/5},
+  ];
+
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = '';
+
+  if(assets.length===0){
+    resultsDiv.innerHTML = '<div class="card"><div class="empty">Chưa có tài sản nào để tính.</div></div>';
+    return;
+  }
+
+  assets.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'card result-card';
+    let rows = '';
+    levels.forEach(lv => {
+      const riskUSD = capital * lv.pct/100;
+      const qty = a.divisor ? riskUSD / a.divisor : 0;
+      const fee = qty * a.fee;
+      const tp = qty + fee;
+      rows += `<tr>
+        <td class="lbl">${lv.label}</td>
+        <td>${fmt(riskUSD)}</td>
+        <td>${fmt(qty)}</td>
+        <td>${fmt(fee)}</td>
+        <td class="tp">${fmt(tp)}</td>
+      </tr>`;
+    });
+    card.innerHTML = `
+      <h2>${a.name || 'Tài sản'}</h2>
+      <div class="scrollx">
+      <table>
+        <thead><tr>
+          <th>Loại lệnh</th><th>Risk (USD)</th><th>KL trước phí</th><th>Phí</th><th>TP (KL+phí)</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>
+    `;
+    resultsDiv.appendChild(card);
+  });
+}
+
+renderAssets();
+calculate();
+</script>
+</body>
+</html>
