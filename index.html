@@ -26,9 +26,10 @@
     font-family:'IBM Plex Mono', monospace;
     -webkit-font-smoothing:antialiased;
     padding:20px 14px 100px;
-    line-height:1.6;
-    letter-spacing:.02em;
+    line-height:1.75;
+    letter-spacing:.035em;
   }
+  hr.sep{border:none;border-top:1px solid var(--border);margin:14px 0;}
   h1,h2,.disp{font-family:'Space Grotesk', sans-serif;}
   .eyebrow{
     font-size:11px;letter-spacing:.18em;text-transform:uppercase;
@@ -54,11 +55,12 @@
     background:var(--card);
     border:1px solid var(--border);
     border-radius:14px;
-    padding:16px;
+    padding:18px 16px;
     margin-top:14px;
   }
-  .card h2{font-size:13px;font-weight:600;color:var(--blue);margin:0 0 14px;letter-spacing:.05em;}
-  .row{display:flex;gap:12px;margin-bottom:12px;}
+  .card h2{font-size:13px;font-weight:600;color:var(--blue);margin:0 0 14px;letter-spacing:.06em;}
+  .row{display:flex;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+  .row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
   .field{flex:1;min-width:0;}
   .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;font-family:'Space Grotesk',sans-serif;letter-spacing:.03em;}
   input{
@@ -71,11 +73,11 @@
   .asset{
     border:1px solid var(--border);
     border-radius:12px;
-    padding:12px;
-    margin-bottom:10px;
+    padding:14px;
+    margin-bottom:12px;
     background:var(--card2);
   }
-  .asset-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .asset-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);}
   .asset-top input{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:var(--gold);background:transparent;border:none;padding:0;width:auto;flex:1;}
   .del{
     background:none;border:none;color:var(--muted);font-size:18px;line-height:1;
@@ -101,16 +103,27 @@
   .result-card h2{color:var(--gold);}
   table{width:100%;border-collapse:collapse;font-size:12.5px;border-spacing:0 0;}
   th{
-    text-align:right;color:var(--muted);font-weight:500;font-size:10.5px;
+    text-align:center;color:var(--muted);font-weight:500;font-size:10.5px;
     text-transform:uppercase;letter-spacing:.08em;padding:0 8px 10px 0;
     font-family:'Space Grotesk',sans-serif;white-space:nowrap;
   }
   th:first-child,td:first-child{text-align:left;padding-left:0;}
-  td{padding:11px 8px 11px 0;border-top:1px solid var(--border);font-variant-numeric:tabular-nums;text-align:right;letter-spacing:.03em;}
+  td{padding:11px 8px 11px 0;border-top:1px solid var(--border);font-variant-numeric:tabular-nums;text-align:center;letter-spacing:.03em;vertical-align:middle;}
   td.lbl{color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.02em;}
   td.tp{color:var(--green);font-weight:600;}
   .scrollx{overflow-x:auto;}
   .empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0;}
+
+.progress-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 4px;border-bottom:1px solid var(--border);gap:10px;
+  text-align:center;
+}
+.progress-row:last-child{border-bottom:none;padding-bottom:0;}
+.progress-row .plabel{font-family:'Space Grotesk',sans-serif;font-size:12.5px;color:var(--text);letter-spacing:.02em;}
+.progress-row .pnum{font-size:18px;font-weight:600;color:var(--green);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.progress-row .pnum.done{color:var(--gold);font-size:14px;}
+.phint{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7;}
   footer{text-align:center;color:var(--muted);font-size:11px;margin-top:24px;line-height:1.7;letter-spacing:.02em;padding:0 6px;}
 </style>
 </head>
@@ -154,6 +167,11 @@
       <input type="number" id="riskPct" value="5" inputmode="decimal">
     </div>
   </div>
+</div>
+
+<div class="card" id="progressCard">
+  <h2>Hành trình mục tiêu — số lệnh còn lại</h2>
+  <div id="progressList"></div>
 </div>
 
 <div class="card" id="assetsCard">
@@ -210,6 +228,34 @@ function removeAsset(i){
   renderAssets();
 }
 
+function renderProgress(capital, target, levels){
+  const box = document.getElementById('progressList');
+  box.innerHTML = '';
+
+  if(capital<=0 || target<=0){
+    box.innerHTML = '<div class="empty">Nhập vốn và mục tiêu để xem tiến độ.</div>';
+    return;
+  }
+  if(capital>=target){
+    box.innerHTML = '<div class="progress-row"><span class="plabel">🎉 Đã đạt mục tiêu</span><span class="pnum done">0 lệnh</span></div>';
+    return;
+  }
+
+  levels.forEach(lv=>{
+    const r = lv.pct/100;
+    let n = '-';
+    if(r>0){
+      n = Math.ceil(Math.log(target/capital)/Math.log(1+r));
+    }
+    box.innerHTML += `<div class="progress-row">
+      <span class="plabel">${lv.label}</span>
+      <span class="pnum">${n} lệnh</span>
+    </div>`;
+  });
+
+  box.innerHTML += `<div class="phint">* Số lệnh thắng liên tiếp cần thiết (RR 1:1, không tính lệnh thua) để đi từ vốn hiện tại đến mục tiêu — đây là mốc lý tưởng để theo dõi, không phải dự đoán chắc chắn.</div>`;
+}
+
 function fmt(n){
   if(!isFinite(n)) return '-';
   return n.toLocaleString('en-US', {maximumFractionDigits:4});
@@ -229,6 +275,8 @@ function calculate(){
     {label:`2 lệnh (${(riskPct/2).toFixed(2)}% mỗi lệnh)`, pct: riskPct/2},
     {label:`5 lệnh (${(riskPct/5).toFixed(2)}% mỗi lệnh)`, pct: riskPct/5},
   ];
+
+  renderProgress(capital, target, levels);
 
   const resultsDiv = document.getElementById('results');
   resultsDiv.innerHTML = '';
