@@ -134,17 +134,17 @@
   <div class="ticker">
     <div class="block">
       <div class="label">Vốn hiện tại</div>
-      <div class="val" id="tCapital">350</div>
+      <div class="val" id="tCapital">680</div>
     </div>
     <div class="divider"></div>
     <div class="block">
       <div class="label">Mục tiêu</div>
-      <div class="val" id="tTarget">6800</div>
+      <div class="val" id="tTarget">7200</div>
     </div>
     <div class="divider"></div>
     <div class="block">
       <div class="label">Còn thiếu</div>
-      <div class="val gold" id="tRemain">6450</div>
+      <div class="val gold" id="tRemain">6520</div>
     </div>
   </div>
 </header>
@@ -154,11 +154,11 @@
   <div class="row">
     <div class="field">
       <label>Vốn hiện tại (USDT)</label>
-      <input type="number" id="capital" value="350" inputmode="decimal">
+      <input type="number" id="capital" value="680" inputmode="decimal">
     </div>
     <div class="field">
       <label>Mục tiêu (USDT)</label>
-      <input type="number" id="target" value="6800" inputmode="decimal">
+      <input type="number" id="target" value="7200" inputmode="decimal">
     </div>
   </div>
   <div class="row">
@@ -294,7 +294,7 @@ function calculate(){
       const riskUSD = capital * lv.pct/100;
       const qty = a.divisor ? riskUSD / a.divisor : 0;
       const fee = qty * a.fee;
-      const tp = qty + fee;
+      const tp = riskUSD + fee;
       rows += `<tr>
         <td class="lbl">${lv.label}</td>
         <td>${fmt(riskUSD)}</td>
