@@ -189,7 +189,7 @@
 <script>
 let assets = [
   {name:"BTC", divisor:250, fee:45},
-  {name:"ETH", divisor:20, fee:1.5},
+  {name:"ETH", divisor:10, fee:1.5},
   {name:"XAU", divisor:10, fee:0.4},
 ];
 
@@ -273,7 +273,7 @@ function calculate(){
   const levels = [
     {label:`Full lệnh (${riskPct}%)`, pct: riskPct},
     {label:`2 lệnh (${(riskPct/2).toFixed(2)}% mỗi lệnh)`, pct: riskPct/2},
-    {label:`5 lệnh (${(riskPct/5).toFixed(2)}% mỗi lệnh)`, pct: riskPct/5},
+    {label:`4 lệnh (${(riskPct/4).toFixed(2)}% mỗi lệnh)`, pct: riskPct/4},
   ];
 
   renderProgress(capital, target, levels);
