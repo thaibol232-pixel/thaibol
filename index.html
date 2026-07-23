@@ -274,6 +274,7 @@ function calculate(){
     {label:`Full lệnh (${riskPct}%)`, pct: riskPct},
     {label:`2 lệnh (${(riskPct/2).toFixed(2)}% mỗi lệnh)`, pct: riskPct/2},
     {label:`4 lệnh (${(riskPct/4).toFixed(2)}% mỗi lệnh)`, pct: riskPct/4},
+    {label:`Lệnh nhỏ (0.5%)`, pct: 0.5},
   ];
 
   renderProgress(capital, target, levels);
